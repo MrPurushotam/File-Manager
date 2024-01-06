@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  margin: 0;
+  padding: 0;
+}
+.App {
+  text-align: center;
+}
+
+@layer utilities{
+  .options{
+    @apply font-semibold text-3xl text-black rounded-lg p-3 mx-5 my-2 ;
+  }
+  .optionsOnHover{
+    @apply hover:shadow-md hover:text-4xl;
+  }
+
+}
