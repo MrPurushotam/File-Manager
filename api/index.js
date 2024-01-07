@@ -13,7 +13,6 @@ const defaultPath=`${__dirname.split('api')[0]}`
 app.get('/test',async(req,res)=>{
     try{
         const list = fs.readdirSync(defaultPath);
-        console.log(list)
         res.json({status:200,message:'done',list:list})
     }catch(e){
         console.log(e.message)
@@ -49,6 +48,64 @@ app.get('/test2',async(req,res)=>{
     }
 })
 
+async function readFolder(folderPath){
+    const listFiles=await fs.readdirSync(folderPath)
+    const res={files:[],folders:[]}
+    listFiles.forEach((item,i) => {
+        const tempPath=path.join(folderPath,item)
+        const stats=fs.statSync(tempPath)
+        if(stats.isFile()){
+            res.files.push([item,stats.size,stats.birthtime])
+        }else if(stats.isDirectory()){
+            res.folders.push([item,stats.birthtime])
+        }
+    })
+    return res;
+}
+
+app.post('/createfolder',async (req,res)=>{
+    try{
+        const folderPath=path.join(defaultPath,req.body.folder.replace(/%20/g, ' '))
+        fs.mkdirSync(folderPath)
+        let folderPathArray=folderPath.split('\\')
+        folderPathArray.pop()
+        const result=await readFolder(folderPathArray.join('//'))
+        res.json({status:200,message:"success",foldersList:result.folders,filesList:result.files})
+    }catch(err){
+        console.log(err.message)
+        res.json({status:400,message:err.message})
+    }
+})
+
+app.post('/createfile',async(req,res)=>{
+    try {
+        const fileName=path.join(defaultPath,req.body.filename.replace(/%20/g, ' '))
+        fs.writeFileSync(fileName,'')
+        let filePathArray=fileName.split('\\')
+        filePathArray.pop()
+        const result=await readFolder(filePathArray.join('//'))
+        res.json({status:200,message:"success",foldersList:result.folders,filesList:result.files})
+    } catch (err) {
+        console.log(err.message)
+        res.json({status:400,message:err.message})
+    }
+})
+app.post('/delete',async(req,res)=>{
+    try{
+        const deletePath=path.join(defaultPath,req.body.deletePath)
+        fs.unlinkSync(deletePath)
+        let deletePathArray=deletePath.split('\\')
+        deletePathArray.pop()
+        const result=await readFolder(deletePathArray.join('//'))
+        res.json({status:200,message:"success",foldersList:result.folders,filesList:result.files})
+
+
+    }catch(err){
+        console.log(err.message)
+        res.json({status:400,message:err.message})
+    }
+})
+
 app.get('/tweakfolder/:foldername?',async(req,res)=>{
     try{
         const folders=[]
@@ -58,7 +115,6 @@ app.get('/tweakfolder/:foldername?',async(req,res)=>{
             listFiles.forEach((item,i) => {
                 const tempPath=path.join(defaultPath,item)
                 const stats=fs.statSync(tempPath)
-                console.log(stats)
                 if(stats.isFile()){
                     files.push([item,stats.size,stats.birthtime])
                 }else if(stats.isDirectory()){
@@ -78,8 +134,7 @@ app.get('/tweakfolder/:foldername?',async(req,res)=>{
                 }
             }); 
         }
-        console.log(folders,files)
-        res.json({status:200,message:'done',foldersList:folders,filesList:files})
+        res.json({status:200,message:'success',foldersList:folders,filesList:files})
     }catch(err){
         console.log(err.message)
         res.json({status:404, message:err.message})
