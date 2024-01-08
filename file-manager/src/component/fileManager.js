@@ -3,6 +3,7 @@ import Loading from './loading'
 import Folder from '../icons/folder'
 import File from '../icons/file'
 import axios from 'axios'
+import { failurToast, normalToast, successToast } from '../App'
 
 const FileManager = () => {
   const [dirLoc,setDirLoc]=useState('')
@@ -38,12 +39,13 @@ const FileManager = () => {
       const resp=await axios.post(`http://localhost:8000/createfolder`,JSON.stringify({folder:dirLoc+name}),
       {headers:{"Content-Type":"application/json"}})
       if(resp.data.status===200){
+        successToast(resp.data.message+` ${name} Folder Created!`)
         setData({folders:resp.data.foldersList,files:resp.data.filesList})
       }
-      setLoading(false)
     }catch(err){
-      console.log(err.message)
+      failurToast(err.message)
     }
+    setLoading(false)
   }
 
   const createFile=async()=>{
@@ -58,19 +60,19 @@ const FileManager = () => {
       const resp=await axios.post(`http://localhost:8000/createfile`,JSON.stringify({filename:dirLoc+name+'.'+type}),
       {headers:{"Content-Type":"application/json"}})
       if(resp.data.status===200){
+        successToast(resp.data.message+` ${name+'.'+type} File Created!`)
         setData({folders:resp.data.foldersList,files:resp.data.filesList})
       }
-      setLoading(false)
     }catch(err){
-      console.log(err.message)
+      failurToast(err.message)
     }
+    setLoading(false)
   }
 
   const deleteFunc=async ()=>{
     setLoading(true)
     try {
       let reply=confirm(`Are you sure you want to delete ${del}?`)
-      console.log(reply)
       if(!reply){
         throw Error('User Denied to delete!!')
       }
@@ -82,16 +84,15 @@ const FileManager = () => {
       const resp=await axios.post(`http://localhost:8000/delete`,JSON.stringify({deletePath:dirLoc+del}),
       {headers:{"Content-Type":"application/json"}})
       if(resp.data.status===200){
+        successToast(resp.data.message+` ${del} Deleted!`)
         setData({folders:resp.data.foldersList,files:resp.data.filesList})
       }
     } catch (err) {
-      console.log(err.message)
+      failurToast(err.message)
     }
     setLoading(false)
   }
 
-
-  console.log(navTo,dirLoc,dirLoc.split('/'),del)
   return (
     <div className='w-4/5 h-1/3 border-2 border-black mx-auto p-5'>
       <div className='w-[70%] border-3 border-black rounded-sm text-2xl bg-slate-200 font-[650] py-2 pl-4 text-left'>
