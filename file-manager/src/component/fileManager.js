@@ -16,7 +16,7 @@ const FileManager = () => {
   useEffect(()=>{
     async function getFolder(){
       setLoading(true)
-      const resp=await axios.get(`http://localhost:8000/tweakfolder/${dirLoc}`)
+      const resp=await axios.post(`http://localhost:8000/tweakfolder/`,JSON.stringify({foldername:dirLoc}),{headers:{"Content-Type":"application/json"}})
       refresh.current=false
       if(resp.data.status===200){
         setData({folders:resp.data.foldersList,files:resp.data.filesList})

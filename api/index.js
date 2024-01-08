@@ -106,13 +106,14 @@ app.post('/delete',async(req,res)=>{
     }
 })
 
-app.get('/tweakfolder/:foldername?',async(req,res)=>{
+app.post('/tweakfolder',async(req,res)=>{
     try{
         const folders=[]
         const files=[]
-        if(!req.params.foldername){
+        console.log(req.body)
+        if(!req.body.foldername){
             const listFiles=await fs.readdirSync(defaultPath)
-            listFiles.forEach((item,i) => {
+            listFiles.forEach((item) => {
                 const tempPath=path.join(defaultPath,item)
                 const stats=fs.statSync(tempPath)
                 if(stats.isFile()){
@@ -122,9 +123,9 @@ app.get('/tweakfolder/:foldername?',async(req,res)=>{
                 }
             }); 
         }else{
-            const currPath=path.join(defaultPath,req.params.foldername)
+            const currPath=path.join(defaultPath,req.body.foldername)
             const listFiles=await fs.readdirSync(currPath)
-            listFiles.forEach((item,i) => {
+            listFiles.forEach((item) => {
                 const tempPath=path.join(currPath,item)
                 const stats=fs.statSync(tempPath)
                 if(stats.isFile()){
